@@ -5,6 +5,7 @@ from fastapi import FastAPI
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 app = FastAPI()
 socket_app = socketio.ASGIApp(sio, app)
+app.mount("/", socket_app)
 
 @sio.event
 async def connect(sid, environ):
