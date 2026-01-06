@@ -22,6 +22,7 @@ export default function GamePageClient({ roomId }: { roomId: string }) {
     const [myId, setMyId] = useState<string>("");
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const hasReceivedStateRef = useRef(false);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (!socket) {
@@ -93,62 +94,148 @@ export default function GamePageClient({ roomId }: { roomId: string }) {
         }
     };
 
-    if (!gameState) return <div className="text-white p-10">Carregando sala...</div>;
+    const handleCopyCode = () => {
+        navigator.clipboard.writeText(roomId);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
-    return (
-        <div className="flex flex-col h-screen bg-slate-900 text-white p-4">
-            {/* Header com título e botão de sair */}
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-xl font-bold">Sala: {roomId}</h1>
-                <button
-                    onClick={handleLeaveRoom}
-                    className="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-semibold transition flex items-center gap-2"
-                >
-                    🚪 Sair da Sala
-                </button>
-            </div>
-
-            {/* Card com código da sala */}
-            <div className="mb-6 p-6 bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg border-2 border-blue-500 shadow-lg">
-                <p className="text-sm text-blue-200 mb-2 text-center">Compartilhe este código com seu amigo:</p>
-                <div className="flex items-center justify-center gap-3">
-                    <span className="text-4xl font-bold tracking-widest font-mono bg-slate-900 px-6 py-3 rounded border-2 border-blue-400">
-                        {roomId}
-                    </span>
-                    <button
-                        onClick={() => {
-                            navigator.clipboard.writeText(roomId);
-                            alert('Código copiado!');
-                        }}
-                        className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-semibold transition"
-                    >
-                        📋 Copiar
-                    </button>
+    if (!gameState) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[#09090B] to-pink-900/20"></div>
+                <div className="relative z-10 glass-effect rounded-3xl p-8 text-center">
+                    <div className="w-16 h-16 border-4 border-[var(--primary-neon)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-[var(--text-muted)]">Carregando sala...</p>
                 </div>
             </div>
+        );
+    }
 
-            {/* Status do Jogo */}
-            <div className="text-center mb-8">
-                {gameState.status === 'waiting' ? (
-                    <div className="bg-yellow-600 p-2 rounded animate-pulse">
-                        ⏳ Aguardando oponente...
-                    </div>
-                ) : (
-                    <div className="bg-green-600 p-2 rounded">
-                        🎮 Jogo em Andamento!
-                    </div>
-                )}
-            </div>
+    return (
+        <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden">
+            {/* Background com gradiente animado */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[#09090B] to-pink-900/20"></div>
 
-            {/* Lista de Jogadores (Debug por enquanto) */}
-            <div className="space-y-4">
-                {gameState.players.map((p) => (
-                    <div key={p.id} className={`p-4 rounded border ${p.id === myId ? 'border-blue-500 bg-slate-800' : 'border-gray-600'}`}>
-                        <div className="font-bold text-lg">{p.nickname} {p.id === myId && "(Você)"}</div>
-                        <div className="text-2xl font-mono text-yellow-400">{p.score} pts</div>
+            {/* Efeitos de luz de fundo */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
+
+            {/* Container principal */}
+            <div className="relative z-10 max-w-4xl mx-auto w-full space-y-6">
+
+                {/* Header com título e botão de sair */}
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gradient">Sala: {roomId}</h1>
+                    <button
+                        onClick={handleLeaveRoom}
+                        className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-[var(--error)] px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Sair
+                    </button>
+                </div>
+
+                {/* Card com código da sala */}
+                <div className="glass-effect rounded-2xl p-6 md:p-8">
+                    <p className="text-sm text-[var(--text-muted)] mb-3 text-center">Compartilhe este código com seu amigo:</p>
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+                        <div className="gradient-primary px-8 py-4 rounded-xl">
+                            <span className="text-3xl md:text-4xl font-bold tracking-widest font-mono text-white">
+                                {roomId}
+                            </span>
+                        </div>
+                        <button
+                            onClick={handleCopyCode}
+                            className="bg-[var(--bg-surface)] hover:bg-zinc-800 border border-zinc-700 px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2"
+                        >
+                            {copied ? (
+                                <>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Copiado!
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    Copiar
+                                </>
+                            )}
+                        </button>
                     </div>
-                ))}
+                </div>
+
+                {/* Status do Jogo */}
+                <div className="text-center">
+                    {gameState.status === 'waiting' ? (
+                        <div className="inline-flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 px-6 py-3 rounded-xl animate-pulse">
+                            <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="12" y1="2" x2="12" y2="6"></line>
+                                <line x1="12" y1="18" x2="12" y2="22"></line>
+                                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                                <line x1="2" y1="12" x2="6" y2="12"></line>
+                                <line x1="18" y1="12" x2="22" y2="12"></line>
+                                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                            </svg>
+                            Aguardando oponente...
+                        </div>
+                    ) : (
+                        <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 text-[var(--success)] px-6 py-3 rounded-xl">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Jogo em Andamento!
+                        </div>
+                    )}
+                </div>
+
+                {/* Lista de Jogadores */}
+                <div className="grid md:grid-cols-2 gap-4">
+                    {gameState.players.map((p, index) => (
+                        <div
+                            key={p.id}
+                            className={`glass-effect rounded-2xl p-6 transition-all hover:scale-[1.02] ${p.id === myId ? 'border-2 border-[var(--primary-neon)] shadow-lg shadow-purple-500/20' : ''
+                                }`}
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${index === 0 ? 'gradient-primary' : 'bg-zinc-800'
+                                        }`}>
+                                        {p.nickname.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-lg flex items-center gap-2">
+                                            {p.nickname}
+                                            {p.id === myId && (
+                                                <span className="text-xs bg-[var(--primary-neon)]/20 text-[var(--primary-neon)] px-2 py-1 rounded-full">
+                                                    Você
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="text-sm text-[var(--text-muted)]">Jogador {index + 1}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
+                                <span className="text-[var(--text-muted)] text-sm">Pontuação</span>
+                                <span className="text-2xl font-bold text-gradient">{p.score} pts</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
 }
+
