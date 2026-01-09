@@ -8,22 +8,51 @@
   /* Background */
   --bg-deep: #09090B;
   --bg-surface: #18181B;
-  
+
   /* Cores Primárias */
   --primary-neon: #A855F7;
   --secondary-hot: #EC4899;
-  
+
   /* Texto */
   --text-base: #FAFAFA;
   --text-muted: #A1A1AA;
-  
+
   /* Status */
   --success: #4ADE80;
   --error: #EF4444;
-  
+
   /* Fontes */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ========================================
+     shadcn/ui Variables (Dark Theme)
+     ======================================== */
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 263 70% 60%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 330 81% 60%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 263 70% 60%;
+  --radius: 0.5rem;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
 }
 
 @theme inline {
@@ -57,18 +86,24 @@ body {
    ======================================== */
 
 @keyframes glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
   }
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -106,4 +141,102 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* ========================================
+   🎯 Classes Customizadas para Espaçamento
+   ======================================== */
+
+/* Inputs customizados */
+.input-custom {
+  height: 3.5rem !important;
+  /* 56px */
+  padding-left: 3rem !important;
+  padding-right: 1rem !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  font-size: 1rem !important;
+  border-width: 2px !important;
+}
+
+/* Botões customizados */
+.button-custom {
+  height: 3.5rem !important;
+  /* 56px */
+  font-size: 1rem !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+.button-custom-sm {
+  height: 2.75rem !important;
+  /* 44px */
+  padding-left: 1.25rem !important;
+  padding-right: 1.25rem !important;
+}
+
+/* Cards customizados - Mantém gap entre elementos */
+.card-custom {
+  border-width: 2px !important;
+  gap: 2rem !important;
+  /* 32px entre Header e Content */
+  padding-top: 0 !important;
+  /* Remove padding-top padrão */
+  padding-bottom: 0 !important;
+  /* Remove padding-bottom padrão */
+}
+
+.card-header-custom {
+  padding-top: 2rem !important;
+  padding-bottom: 1.5rem !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+.card-content-custom {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  padding-bottom: 2rem !important;
+  /* Gap do Card já cuida do espaçamento superior */
+}
+
+/* Tabs customizadas */
+.tabs-list-custom {
+  height: 3rem !important;
+  /* 48px */
+  padding: 0.25rem !important;
+  border-width: 2px !important;
+}
+
+.tabs-trigger-custom {
+  height: 100% !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Badges customizados */
+.badge-custom {
+  padding-left: 1.75rem !important;
+  padding-right: 1.75rem !important;
+  padding-top: 0.875rem !important;
+  padding-bottom: 0.875rem !important;
+  border-width: 2px !important;
+  font-weight: 600 !important;
+}
+
+/* Labels customizados */
+.label-custom {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+}
+
+.badge-padding-margin {
+  margin-top: 2rem !important;
+  /* 32px de espaço acima do badge */
+  padding: 0.25rem 1.5rem !important;
+  /* Padding vertical e horizontal */
 }
