@@ -56,7 +56,7 @@ async def create_room(sid, data):
         'owner': sid  # Marca quem criou a sala
     }
     
-    sio.enter_room(sid, room_code)
+    await sio.enter_room(sid, room_code)
     
     games[room_code]['players'][sid] = {
         "nickname": nickname,
@@ -66,9 +66,11 @@ async def create_room(sid, data):
     
     print(f"🎮 Sala criada: {room_code} por {nickname}")
     
-    # Envia o código da sala para o criador
-    await sio.emit('room_created', {'roomCode': room_code}, to=sid)
+    # Envia o estado PRIMEIRO para garantir que o frontend receba antes de redirecionar
     await broadcast_game_state(room_code)
+    
+    # Depois envia a confirmação de criação (para evitar race condition)
+    await sio.emit('room_created', {'roomCode': room_code}, to=sid)
 
 @sio.event
 async def disconnect(sid):
@@ -108,7 +110,7 @@ async def join_game(sid, data):
         await sio.emit('error', {'message': 'Sala cheia!'}, to=sid)
         return
 
-    sio.enter_room(sid, room_id)
+    await sio.enter_room(sid, room_id)
     
     current_game['players'][sid] = {
         "nickname": nickname,
@@ -172,7 +174,7 @@ async def leave_game(sid, data):
     if sid in game['players']:
         nickname = game['players'][sid]['nickname']
         del game['players'][sid]
-        sio.leave_room(sid, room_id)
+        await sio.leave_room(sid, room_id)
         print(f"👋 {nickname} saiu da sala {room_id}")
         
         # Se a sala ficou vazia, remove ela

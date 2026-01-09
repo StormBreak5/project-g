@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { User, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Lobby() {
   const { socket, isConnected } = useSocket();
@@ -22,10 +23,40 @@ export default function Lobby() {
   useEffect(() => {
     if (!socket) return;
 
+    let roomCodeToJoin: string | null = null;
+    let hasReceivedState = false;
+
     // Quando uma sala é criada com sucesso
     socket.on('room_created', (data) => {
       console.log("🎉 Sala criada com código:", data.roomCode);
-      router.push(`/game/${data.roomCode}`);
+      roomCodeToJoin = data.roomCode;
+
+      // Aguarda um pouco para garantir que o estado chegou
+      // Se já recebeu o update_game, redireciona imediatamente
+      if (hasReceivedState) {
+        console.log("✅ Estado já recebido, redirecionando...");
+        router.push(`/game/${data.roomCode}`);
+      } else {
+        // Aguarda até 1 segundo pelo estado, depois redireciona de qualquer forma
+        console.log("⏳ Aguardando estado da sala...");
+        setTimeout(() => {
+          console.log("⏰ Timeout - redirecionando mesmo sem estado");
+          router.push(`/game/${data.roomCode}`);
+        }, 1000);
+      }
+    });
+
+    // Listener para receber o estado da sala
+    socket.on('update_game', (data) => {
+      console.log("📡 Estado recebido:", data);
+      hasReceivedState = true;
+
+      // Se já recebeu room_created e está aguardando, redireciona agora
+      if (roomCodeToJoin && roomCodeToJoin === data.roomId) {
+        console.log("✅ Estado confirmado, redirecionando...");
+        router.push(`/game/${roomCodeToJoin}`);
+        roomCodeToJoin = null;
+      }
     });
 
     // Quando entra em uma sala existente
@@ -40,6 +71,7 @@ export default function Lobby() {
 
     return () => {
       socket.off('room_created');
+      socket.off('update_game');
       socket.off('join_success');
       socket.off('error');
     };
@@ -109,96 +141,120 @@ export default function Lobby() {
               </TabsList>
 
               <TabsContent value="create" className="space-y-6 mt-8">
-                {/* Campo de Apelido */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <Label htmlFor="nickname-create" className="label-custom text-[var(--text-base)]">
-                    Seu Apelido
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
-                    <Input
-                      id="nickname-create"
-                      type="text"
-                      placeholder="Digite seu apelido"
-                      className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
+                <AnimatePresence mode="wait">
+                  {mode === 'create' && (
+                    <motion.div
+                      key="create"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      {/* Campo de Apelido */}
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <Label htmlFor="nickname-create" className="label-custom text-[var(--text-base)]">
+                          Seu Apelido
+                        </Label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
+                          <Input
+                            id="nickname-create"
+                            type="text"
+                            placeholder="Digite seu apelido"
+                            className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20"
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            maxLength={20}
+                          />
+                        </div>
+                      </div>
 
-                {/* Mensagem de erro */}
-                {error && (
-                  <div style={{ marginBottom: '1.5rem' }} className="bg-red-500/10 border-2 border-red-500/30 text-[var(--error)] px-5 py-4 rounded-xl text-sm text-center font-medium">
-                    {error}
-                  </div>
-                )}
+                      {/* Mensagem de erro */}
+                      {error && (
+                        <div style={{ marginBottom: '1.5rem' }} className="bg-red-500/10 border-2 border-red-500/30 text-[var(--error)] px-5 py-4 rounded-xl text-sm text-center font-medium">
+                          {error}
+                        </div>
+                      )}
 
-                {/* Botão de Criar */}
-                <Button
-                  onClick={handleCreateRoom}
-                  disabled={!isConnected || !nickname}
-                  className="w-full button-custom gradient-primary hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:hover:scale-100 active:scale-[0.98] font-bold uppercase tracking-wider transition-all"
-                >
-                  ENTRAR
-                </Button>
+                      {/* Botão de Criar */}
+                      <Button
+                        onClick={handleCreateRoom}
+                        disabled={!isConnected || !nickname}
+                        className="w-full button-custom gradient-primary hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:hover:scale-100 active:scale-[0.98] font-bold uppercase tracking-wider transition-all"
+                      >
+                        ENTRAR
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </TabsContent>
 
               <TabsContent value="join" className="space-y-6 mt-8">
-                {/* Campo de Apelido */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <Label htmlFor="nickname-join" className="label-custom text-[var(--text-base)]">
-                    Seu Apelido
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
-                    <Input
-                      id="nickname-join"
-                      type="text"
-                      placeholder="Digite seu apelido"
-                      className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      maxLength={20}
-                    />
-                  </div>
-                </div>
+                <AnimatePresence mode="wait">
+                  {mode === 'join' && (
+                    <motion.div
+                      key="join"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      {/* Campo de Apelido */}
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <Label htmlFor="nickname-join" className="label-custom text-[var(--text-base)]">
+                          Seu Apelido
+                        </Label>
+                        <div className="relative">
+                          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
+                          <Input
+                            id="nickname-join"
+                            type="text"
+                            placeholder="Digite seu apelido"
+                            className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20"
+                            value={nickname}
+                            onChange={(e) => setNickname(e.target.value)}
+                            maxLength={20}
+                          />
+                        </div>
+                      </div>
 
-                {/* Campo de Código da Sala */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <Label htmlFor="room-code" className="label-custom text-[var(--text-base)]">
-                    Código da Sala
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
-                    <Input
-                      id="room-code"
-                      type="text"
-                      placeholder="Digite o código"
-                      className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20 uppercase"
-                      value={roomCode}
-                      onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                      maxLength={6}
-                    />
-                  </div>
-                </div>
+                      {/* Campo de Código da Sala */}
+                      <div style={{ marginBottom: '1.5rem' }}>
+                        <Label htmlFor="room-code" className="label-custom text-[var(--text-base)]">
+                          Código da Sala
+                        </Label>
+                        <div className="relative">
+                          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--primary-neon)] z-10" />
+                          <Input
+                            id="room-code"
+                            type="text"
+                            placeholder="Digite o código"
+                            className="input-custom bg-[var(--bg-surface)] border-zinc-800 focus:border-[var(--primary-neon)] focus:ring-[var(--primary-neon)]/20 uppercase"
+                            value={roomCode}
+                            onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                            maxLength={6}
+                          />
+                        </div>
+                      </div>
 
-                {/* Mensagem de erro */}
-                {error && (
-                  <div style={{ marginBottom: '1.5rem' }} className="bg-red-500/10 border-2 border-red-500/30 text-[var(--error)] px-5 py-4 rounded-xl text-sm text-center font-medium">
-                    {error}
-                  </div>
-                )}
+                      {/* Mensagem de erro */}
+                      {error && (
+                        <div style={{ marginBottom: '1.5rem' }} className="bg-red-500/10 border-2 border-red-500/30 text-[var(--error)] px-5 py-4 rounded-xl text-sm text-center font-medium">
+                          {error}
+                        </div>
+                      )}
 
-                {/* Botão de Entrar */}
-                <Button
-                  onClick={handleJoinRoom}
-                  disabled={!isConnected || !nickname || !roomCode}
-                  className="w-full button-custom gradient-primary hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:hover:scale-100 active:scale-[0.98] font-bold uppercase tracking-wider transition-all"
-                >
-                  ENTRAR
-                </Button>
+                      {/* Botão de Entrar */}
+                      <Button
+                        onClick={handleJoinRoom}
+                        disabled={!isConnected || !nickname || !roomCode}
+                        className="w-full button-custom gradient-primary hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:hover:scale-100 active:scale-[0.98] font-bold uppercase tracking-wider transition-all"
+                      >
+                        ENTRAR
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </TabsContent>
             </Tabs>
 

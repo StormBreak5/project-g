@@ -106,11 +106,11 @@ export default function GamePageClient({ roomId }: { roomId: string }) {
 
     if (!gameState) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+            <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[#09090B] to-pink-900/20"></div>
-                <Card className="relative z-10 glass-effect border-2 border-zinc-800/50 text-center">
-                    <CardContent className="pt-8 pb-8 px-8">
-                        <Loader2 className="w-16 h-16 text-[var(--primary-neon)] animate-spin mx-auto mb-6" />
+                <Card className="relative z-10 glass-effect shadow-2xl text-center" style={{ minWidth: '300px' }}>
+                    <CardContent className="pt-12 pb-12 px-10">
+                        <Loader2 className="w-16 h-16 text-[var(--primary-neon)] animate-spin mx-auto" style={{ marginBottom: '1.5rem' }} />
                         <p className="text-[var(--text-muted)] text-base">Carregando sala...</p>
                     </CardContent>
                 </Card>
@@ -119,7 +119,7 @@ export default function GamePageClient({ roomId }: { roomId: string }) {
     }
 
     return (
-        <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
             {/* Background com gradiente animado */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-[#09090B] to-pink-900/20"></div>
 
@@ -128,107 +128,175 @@ export default function GamePageClient({ roomId }: { roomId: string }) {
             <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
 
             {/* Container principal */}
-            <div className="relative z-10 max-w-4xl mx-auto w-full space-y-8">
-
-                {/* Header com título e botão de sair */}
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gradient">Sala: {roomId}</h1>
-                    <Button
-                        onClick={handleLeaveRoom}
-                        variant="destructive"
-                        className="flex items-center gap-2 h-11 px-5"
-                    >
-                        <LogOut className="h-4 w-4" />
-                        Sair
-                    </Button>
-                </div>
-
-                {/* Card com código da sala */}
-                <Card className="glass-effect border-2 border-zinc-800/50">
-                    <CardHeader className="text-center pb-4 pt-6">
-                        <CardDescription className="text-base">Compartilhe este código com seu amigo:</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-6">
-                        <div className="flex flex-col md:flex-row items-center justify-center gap-5">
-                            <div className="gradient-primary px-10 py-5 rounded-xl shadow-lg">
-                                <span className="text-3xl md:text-4xl font-bold tracking-widest font-mono text-white">
-                                    {roomId}
-                                </span>
+            <div className="relative w-full max-w-4xl z-10">
+                <Card className="glass-effect card-custom shadow-2xl">
+                    <CardHeader className="card-header-custom">
+                        {/* Header com título e botão de sair */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <CardTitle className="text-4xl md:text-5xl font-bold text-gradient uppercase tracking-wide" style={{ marginBottom: '0.5rem' }}>
+                                    Sala de Jogo
+                                </CardTitle>
+                                <CardDescription className="text-base">
+                                    Código: <span className="font-mono font-bold text-[var(--primary-neon)]">{roomId}</span>
+                                </CardDescription>
                             </div>
                             <Button
-                                onClick={handleCopyCode}
-                                variant="outline"
-                                className="bg-[var(--bg-surface)] border-2 border-zinc-700 hover:bg-zinc-800 flex items-center gap-2 h-12 px-6 font-semibold"
+                                onClick={handleLeaveRoom}
+                                variant="destructive"
+                                className="button-custom-sm bg-red-600/20 border-2 border-red-500/30 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all"
                             >
-                                {copied ? (
-                                    <>
-                                        <Check className="h-5 w-5" />
-                                        Copiado!
-                                    </>
-                                ) : (
-                                    <>
-                                        <Copy className="h-5 w-5" />
-                                        Copiar
-                                    </>
-                                )}
+                                <LogOut className="h-4 w-4" style={{ marginRight: '0.5rem' }} />
+                                Sair da Sala
                             </Button>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent className="card-content-custom space-y-8">
+                        {/* Card com código da sala */}
+                        <div className="gradient-primary p-1 rounded-xl">
+                            <div className="bg-[var(--bg-surface)] rounded-lg" style={{ padding: '1.5rem' }}>
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                    <div className="flex-1 text-center md:text-left">
+                                        <p className="text-[var(--text-muted)] text-sm uppercase tracking-wide font-semibold" style={{ marginBottom: '0.75rem' }}>
+                                            Compartilhe este código
+                                        </p>
+                                        <div className="inline-flex items-center gap-3 bg-zinc-900/50 rounded-lg border border-zinc-700/50" style={{ padding: '1rem 1.5rem' }}>
+                                            <Copy className="h-5 w-5 text-[var(--primary-neon)]" />
+                                            <span className="text-3xl md:text-4xl font-bold font-mono text-gradient" style={{ letterSpacing: '0.3em' }}>
+                                                {roomId}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={handleCopyCode}
+                                        className="button-custom gradient-primary hover:opacity-90 hover:scale-105 font-bold transition-all"
+                                        style={{ paddingLeft: '2rem', paddingRight: '2rem' }}
+                                    >
+                                        {copied ? (
+                                            <>
+                                                <Check className="h-5 w-5" style={{ marginRight: '0.5rem' }} />
+                                                Copiado!
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="h-5 w-5" style={{ marginRight: '0.5rem' }} />
+                                                Copiar Código
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Status do Jogo */}
+                        <div className="flex justify-center" style={{ marginTop: '1.5rem' }}>
+                            {gameState.status === 'waiting' ? (
+                                <Badge variant="outline" className="badge-custom border-yellow-500/30 bg-yellow-500/20 text-yellow-400">
+                                    <Loader2 className="animate-spin h-5 w-5" style={{ marginRight: '0.5rem' }} />
+                                    Aguardando oponente...
+                                </Badge>
+                            ) : (
+                                <Badge variant="outline" className="badge-custom border-[var(--success)]/30 bg-[var(--success)]/20 text-[var(--success)]">
+                                    <Clock className="h-5 w-5" style={{ marginRight: '0.5rem' }} />
+                                    Jogo em Andamento!
+                                </Badge>
+                            )}
+                        </div>
+
+                        {/* Seção de Jogadores */}
+                        <div>
+                            <h2 className="text-2xl font-bold text-white flex items-center gap-2" style={{ marginBottom: '1.5rem' }}>
+                                <User className="h-6 w-6 text-[var(--primary-neon)]" />
+                                Jogadores
+                                <span className="text-[var(--text-muted)] text-lg font-normal">({gameState.players.length}/2)</span>
+                            </h2>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {gameState.players.map((p, index) => (
+                                    <Card
+                                        key={p.id}
+                                        className={`glass-effect border-2 transition-all duration-300 hover:scale-[1.02] ${p.id === myId
+                                            ? 'border-[var(--primary-neon)] shadow-xl shadow-purple-500/30 animate-glow'
+                                            : 'border-zinc-800/50 hover:border-zinc-700'
+                                            }`}
+                                    >
+                                        <CardContent style={{ padding: '1.5rem' }}>
+                                            <div className="flex items-start justify-between" style={{ marginBottom: '1.5rem' }}>
+                                                <div className="flex items-center gap-4">
+                                                    {/* Avatar com gradiente */}
+                                                    <div className={`relative w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold shadow-lg ${index === 0 ? 'gradient-primary' : 'bg-gradient-to-br from-zinc-700 to-zinc-800'
+                                                        }`}>
+                                                        <span className="relative z-10 text-white">
+                                                            {p.nickname.charAt(0).toUpperCase()}
+                                                        </span>
+                                                        {p.id === myId && (
+                                                            <div className="absolute inset-0 rounded-full animate-pulse bg-purple-500/30"></div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Info do jogador */}
+                                                    <div>
+                                                        <div className="flex items-center gap-2" style={{ marginBottom: '0.25rem' }}>
+                                                            <h3 className="font-bold text-xl text-white">{p.nickname}</h3>
+                                                            {p.id === myId && (
+                                                                <Badge className="gradient-primary text-white border-0 text-xs font-bold" style={{ padding: '0.25rem 0.75rem' }}>
+                                                                    VOCÊ
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-[var(--text-muted)] font-medium">
+                                                            Jogador {index + 1}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Estatísticas */}
+                                            <div className="space-y-3">
+                                                <div className="h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent"></div>
+
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-[var(--primary-neon)]"></div>
+                                                        <span className="text-[var(--text-muted)] text-sm font-semibold uppercase tracking-wide">Pontuação</span>
+                                                    </div>
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-3xl font-bold text-gradient">{p.score}</span>
+                                                        <span className="text-sm text-[var(--text-muted)] font-medium">pts</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Barra de progresso visual */}
+                                                <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full gradient-primary transition-all duration-500"
+                                                        style={{ width: `${Math.min((p.score / 1000) * 100, 100)}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+
+                                {/* Slot vazio para segundo jogador */}
+                                {gameState.players.length < 2 && (
+                                    <Card className="glass-effect border-2 border-dashed border-zinc-800/50">
+                                        <CardContent className="flex items-center justify-center" style={{ padding: '3rem 1.5rem', minHeight: '200px' }}>
+                                            <div className="text-center">
+                                                <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto" style={{ marginBottom: '1rem' }}>
+                                                    <User className="h-8 w-8 text-zinc-600" />
+                                                </div>
+                                                <p className="text-[var(--text-muted)] font-medium">Aguardando jogador...</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Status do Jogo */}
-                <div className="text-center">
-                    {gameState.status === 'waiting' ? (
-                        <Badge variant="outline" className="border-2 border-yellow-500/30 bg-yellow-500/20 text-yellow-400 px-7 py-3.5 text-base font-semibold">
-                            <Loader2 className="animate-spin h-5 w-5 mr-2.5" />
-                            Aguardando oponente...
-                        </Badge>
-                    ) : (
-                        <Badge variant="outline" className="border-2 border-[var(--success)]/30 bg-[var(--success)]/20 text-[var(--success)] px-7 py-3.5 text-base font-semibold">
-                            <Clock className="h-5 w-5 mr-2.5" />
-                            Jogo em Andamento!
-                        </Badge>
-                    )}
-                </div>
-
-                {/* Lista de Jogadores */}
-                <div className="grid md:grid-cols-2 gap-5">
-                    {gameState.players.map((p, index) => (
-                        <Card
-                            key={p.id}
-                            className={`glass-effect border-2 border-zinc-800/50 transition-all hover:scale-[1.02] ${p.id === myId ? 'border-2 border-[var(--primary-neon)] shadow-lg shadow-purple-500/20' : ''
-                                }`}
-                        >
-                            <CardContent className="pt-7 pb-7 px-6">
-                                <div className="flex items-center justify-between mb-5">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-md ${index === 0 ? 'gradient-primary' : 'bg-zinc-800'
-                                            }`}>
-                                            {p.nickname.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-lg flex items-center gap-2.5">
-                                                {p.nickname}
-                                                {p.id === myId && (
-                                                    <Badge variant="secondary" className="bg-[var(--primary-neon)]/20 text-[var(--primary-neon)] border border-[var(--primary-neon)]/30 px-2.5 py-0.5">
-                                                        Você
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <div className="text-sm text-[var(--text-muted)] mt-1">Jogador {index + 1}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between pt-4 border-t-2 border-zinc-800">
-                                    <span className="text-[var(--text-muted)] text-sm font-medium">Pontuação</span>
-                                    <span className="text-2xl font-bold text-gradient">{p.score} pts</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
             </div>
         </div>
     );
 }
-
